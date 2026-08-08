@@ -10,7 +10,7 @@ export declare const signupSchema: z.ZodObject<{
 }, z.core.$strip>;
 export declare const sendMessageSchema: z.ZodObject<{
     text: z.ZodOptional<z.ZodString>;
-    image: z.ZodOptional<z.ZodString>;
+    image: z.ZodNullable<z.ZodOptional<z.ZodString>>;
 }, z.core.$strip>;
 export declare const paginationSchema: z.ZodObject<{
     page: z.ZodDefault<z.ZodCoercedNumber<unknown>>;

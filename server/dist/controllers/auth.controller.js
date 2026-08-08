@@ -1,10 +1,11 @@
 import bcrypt from "bcryptjs";
 import User from "../models/user.model.js";
 import RefreshToken from "../models/refreshToken.model.js";
+import cloudinary from "../lib/cloudinary.js";
 import { generateAccessToken, generateRefreshToken, setAuthCookies, clearAuthCookies, } from "../lib/token.utils.js";
 const MAX_FAILED_ATTEMPTS = 5;
 const LOCK_DURATION_MS = 15 * 60 * 1000; // 15 min
-// Valid bcrypt hash of a random string - sirf timing attack rokne ke liye
+// Valid bcrypt hash of a random string - just to stop timing attack
 const DUMMY_HASH = "$2a$10$CwTycUXWue0Thq9StjUM0uJ8i6bZBTPBEcJdaTCq0RGDwsC4rL5vG";
 export const signup = async (req, res) => {
     try {
@@ -43,7 +44,6 @@ export const login = async (req, res) => {
     try {
         const { email, password } = req.body;
         const user = await User.findOne({ email });
-        // Account locked hai to check karo (user exist kare tabhi)
         if (user?.lockUntil && user.lockUntil > new Date()) {
             const minutesLeft = Math.ceil((user.lockUntil.getTime() - Date.now()) / 60000);
             res.status(423).json({
@@ -53,7 +53,6 @@ export const login = async (req, res) => {
             });
             return;
         }
-        // Timing-safe: user mile ya na mile, bcrypt.compare hamesha chalta hai
         const hashToCompare = user?.password ?? DUMMY_HASH;
         const isMatch = await bcrypt.compare(password, hashToCompare);
         if (!user || !isMatch) {
@@ -157,5 +156,43 @@ export const logoutAll = async (req, res) => {
 };
 export const checkAuth = (req, res) => {
     res.status(200).json({ success: true, user: req.user });
+};
+export const updateProfile = async (req, res) => {
+    try {
+        if (!req.user) {
+            res.status(401).json({ success: false, message: "Not authenticated" });
+            return;
+        }
+        if (!req.file) {
+            res.status(400).json({ success: false, message: "No profile picture provided" });
+            return;
+        }
+        const base64Image = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
+        // Upload to Cloudinary
+        const uploadResponse = await cloudinary.uploader.upload(base64Image, {
+            folder: "profile-pics",
+            resource_type: "image",
+        });
+        // Update user profile picture in DB
+        const updatedUser = await User.findByIdAndUpdate(req.user._id, { profilePic: uploadResponse.secure_url }, { new: true }).select("-password");
+        if (!updatedUser) {
+            res.status(404).json({ success: false, message: "User not found" });
+            return;
+        }
+        res.status(200).json({
+            success: true,
+            user: {
+                _id: updatedUser._id,
+                fullName: updatedUser.fullName,
+                email: updatedUser.email,
+                profilePic: updatedUser.profilePic,
+                createdAt: updatedUser.createdAt,
+            },
+        });
+    }
+    catch (error) {
+        console.error("Update profile error:", error);
+        res.status(500).json({ success: false, message: "Internal server error" });
+    }
 };
 //# sourceMappingURL=auth.controller.js.map

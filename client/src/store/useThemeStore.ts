@@ -6,9 +6,11 @@ interface ThemeStore {
 }
 
 export const useThemeStore = create<ThemeStore>((set) => ({
-  theme: localStorage.getItem("chat-theme") || "coffee",
+  theme: typeof window !== "undefined" ? localStorage.getItem("chat-theme") || "coffee" : "coffee",
   setTheme: (theme) => {
-    localStorage.setItem("chat-theme", theme);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("chat-theme", theme);
+    }
     set({ theme });
   },
 }));

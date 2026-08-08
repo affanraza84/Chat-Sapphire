@@ -4,7 +4,6 @@ import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import helmet from "helmet";
-import mongoSanitize from "express-mongo-sanitize";
 import authRoutes from "./routes/auth.route.js";
 import messageRoutes from "./routes/message.route.js";
 import { connectDB } from "./lib/db.js";
@@ -16,7 +15,6 @@ validateEnv();
 app.use(helmet());
 app.use(express.json({ limit: "10mb" }));
 app.use(cookieParser());
-app.use(mongoSanitize());
 const clientUrl = process.env.CLIENT_URL;
 const allowedOrigins = [
     clientUrl,
@@ -41,7 +39,6 @@ app.use(generalLimiter);
 app.use("/api/auth", authRoutes);
 app.use("/api/message", messageRoutes);
 app.use("/api/messages", messageRoutes);
-// Generic error handler - kabhi bhi raw stack trace client ko na jaye
 app.use((err, _req, res, _next) => {
     console.error("Unhandled error:", err);
     res.status(500).json({ success: false, message: "Internal server error" });

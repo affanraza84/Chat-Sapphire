@@ -9,44 +9,51 @@ const Navbar = () => {
 
   return (
     <header
-      className="bg-base-100 border-b border-base-300 fixed w-full top-0 z-40 
-    backdrop-blur-lg bg-base-100/80"
+      className="fixed top-0 left-0 right-0 z-50 border-b border-base-content/10 bg-base-100/70 backdrop-blur-md transition-all duration-300 shadow-sm"
     >
       <div className="container mx-auto px-4 h-16">
         <div className="flex items-center justify-between h-full">
+          {/* Logo Section */}
           <div className="flex items-center gap-8">
             <Link
               href="/"
-              className="flex items-center gap-2.5 hover:opacity-80 transition-all"
+              className="flex items-center gap-3 group transition-transform active:scale-95"
             >
-              <div className="size-9 rounded-lg bg-primary/10 flex items-center justify-center">
-                <MessageSquare className="w-5 h-5 text-primary" />
+              <div className="size-10 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-all duration-300 shadow-inner">
+                <MessageSquare className="w-5 h-5 text-primary group-hover:scale-110 transition-transform duration-300" />
               </div>
-              <h1 className="text-lg font-bold">Chat Sapphireˀ</h1>
+              <h1 className="text-xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary-focus bg-clip-text text-transparent group-hover:opacity-90 transition-opacity">
+                Chat Sapphire
+              </h1>
             </Link>
           </div>
 
-          <div className="flex items-center gap-2">
+          {/* Actions Section */}
+          <div className="flex items-center gap-3">
             <Link
-              href={"/settings"}
-              className={`
-              btn btn-sm gap-2 transition-colors
-              `}
+              href="/setting-page"
+              className="btn btn-ghost btn-sm gap-2 rounded-xl hover:bg-base-content/10 hover:text-primary transition-all duration-300"
             >
-              <Settings className="w-4 h-4" />
-              <span className="hidden sm:inline">Settings</span>
+              <Settings className="w-4 h-4 animate-spin-hover" />
+              <span className="hidden sm:inline font-medium">Settings</span>
             </Link>
 
             {authUser && (
               <>
-                <Link href={"/profile"} className={`btn btn-sm gap-2`}>
-                  <User className="size-5" />
-                  <span className="hidden sm:inline">Profile</span>
+                <Link
+                  href="/profile"
+                  className="btn btn-ghost btn-sm gap-2 rounded-xl hover:bg-base-content/10 hover:text-primary transition-all duration-300"
+                >
+                  <User className="w-4 h-4" />
+                  <span className="hidden sm:inline font-medium">Profile</span>
                 </Link>
 
-                <button className="flex gap-2 items-center" onClick={logout}>
-                  <LogOut className="size-5" />
-                  <span className="hidden sm:inline">Logout</span>
+                <button
+                  onClick={logout}
+                  className="btn btn-ghost btn-sm gap-2 rounded-xl text-error/85 hover:text-error hover:bg-error/10 transition-all duration-300"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span className="hidden sm:inline font-medium">Logout</span>
                 </button>
               </>
             )}
@@ -57,3 +64,4 @@ const Navbar = () => {
   );
 };
 export default Navbar;
+

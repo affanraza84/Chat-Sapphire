@@ -8,7 +8,11 @@ export const validateQuery = (schema) => (req, res, next) => {
         });
         return;
     }
-    req.query = result.data;
+    // Mutate req.query in-place to avoid TypeError (it is a getter-only property on modern IncomingMessage)
+    for (const key of Object.keys(req.query)) {
+        delete req.query[key];
+    }
+    Object.assign(req.query, result.data);
     next();
 };
 //# sourceMappingURL=validateQuery.middleware.js.map

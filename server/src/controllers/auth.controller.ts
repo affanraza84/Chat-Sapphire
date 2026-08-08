@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import type { Request, Response } from "express";
 import User from "../models/user.model.js";
 import RefreshToken from "../models/refreshToken.model.js";
+import cloudinary from "../lib/cloudinary.js";
 import {
   generateAccessToken,
   generateRefreshToken,
@@ -188,4 +189,52 @@ export const logoutAll = async (req: Request, res: Response): Promise<void> => {
 
 export const checkAuth = (req: Request, res: Response): void => {
   res.status(200).json({ success: true, user: req.user });
+};
+
+export const updateProfile = async (req: Request, res: Response): Promise<void> => {
+  try {
+    if (!req.user) {
+      res.status(401).json({ success: false, message: "Not authenticated" });
+      return;
+    }
+
+    if (!req.file) {
+      res.status(400).json({ success: false, message: "No profile picture provided" });
+      return;
+    }
+
+    const base64Image = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
+    
+    // Upload to Cloudinary
+    const uploadResponse = await cloudinary.uploader.upload(base64Image, {
+      folder: "profile-pics",
+      resource_type: "image",
+    });
+
+    // Update user profile picture in DB
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user._id,
+      { profilePic: uploadResponse.secure_url },
+      { new: true }
+    ).select("-password");
+
+    if (!updatedUser) {
+      res.status(404).json({ success: false, message: "User not found" });
+      return;
+    }
+
+    res.status(200).json({
+      success: true,
+      user: {
+        _id: updatedUser._id,
+        fullName: updatedUser.fullName,
+        email: updatedUser.email,
+        profilePic: updatedUser.profilePic,
+        createdAt: updatedUser.createdAt,
+      },
+    });
+  } catch (error) {
+    console.error("Update profile error:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
 };

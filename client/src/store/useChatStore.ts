@@ -64,7 +64,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
       const res = await axiosInstance.get("/message/users");
 
       // Ensure we have valid data and it's an array
-      const users = Array.isArray(res.data) ? res.data : [];
+      const users = Array.isArray(res.data.users) ? res.data.users : [];
 
       console.log(`[CHAT] Fetched ${users.length} users successfully`);
       console.log("[CHAT] Users data:", users);
@@ -98,7 +98,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
       const res = await axiosInstance.get(`/message/${userId}`);
 
       // Ensure we have valid data and it's an array
-      const messages = Array.isArray(res.data) ? res.data : [];
+      const messages = Array.isArray(res.data.messages) ? res.data.messages : [];
 
       console.log(`[CHAT] Fetched ${messages.length} messages successfully`);
       console.log("[CHAT] Messages data:", messages);
@@ -141,7 +141,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
       );
 
       console.log("[CHAT] Message sent successfully");
-      set({ messages: [...messages, res.data] });
+      set({ messages: [...messages, res.data.message] });
     } catch (error) {
       const err = error as ApiError;
       const errorMessage =

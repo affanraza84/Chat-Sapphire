@@ -1,3 +1,5 @@
+"use client";
+
 import { useChatStore } from "../store/useChatStore";
 import { useEffect, useRef } from "react";
 
@@ -46,7 +48,7 @@ const ChatContainer = () => {
 
   if (isMessagesLoading) {
     return (
-      <div className="flex-1 flex flex-col overflow-auto">
+      <div className="flex-1 flex flex-col overflow-auto bg-base-100/50">
         <ChatHeader />
         <MessageSkeleton />
         <MessageInput />
@@ -59,52 +61,70 @@ const ChatContainer = () => {
   }
 
   return (
-    <div className="flex-1 flex flex-col overflow-auto">
+    <div className="flex-1 flex flex-col overflow-hidden bg-base-100/30">
       <ChatHeader />
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.map((message: Message) => (
-          <div
-            key={message._id}
-            className={`chat ${
-              message.senderId === authUser._id ? "chat-end" : "chat-start"
-            }`}
-            ref={messageEndRef}
-          >
-            <div className=" chat-image avatar">
-              <div className="w-10 h-10 rounded-full border">
-                <Image
-                  src={
-                    message.senderId === authUser._id
-                      ? authUser.profilePic || "/avatar.png"
-                      : selectedUser.profilePic || "/avatar.png"
-                  }
-                  alt="profile pic"
-                  width={40}
-                  height={40}
-                  className="rounded-full object-cover"
-                />
+      {/* Message History area */}
+      <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin">
+        {messages.map((message: Message) => {
+          const isSelf = message.senderId === authUser._id;
+
+          return (
+            <div
+              key={message._id}
+              className={`chat ${isSelf ? "chat-end" : "chat-start"} animate-message-in`}
+              ref={messageEndRef}
+            >
+              {/* Profile Image with subtle avatar frame */}
+              <div className="chat-image avatar">
+                <div className="w-9 h-9 rounded-full ring-1 ring-base-content/10 shadow-sm">
+                  <Image
+                    src={
+                      isSelf
+                        ? authUser.profilePic || "/avatar.png"
+                        : selectedUser.profilePic || "/avatar.png"
+                    }
+                    alt="profile pic"
+                    width={36}
+                    height={36}
+                    className="rounded-full object-cover bg-base-200"
+                  />
+                </div>
+              </div>
+
+              {/* Chat Bubble Message Body */}
+              <div
+                className={`chat-bubble flex flex-col max-w-[75%] p-3.5 shadow-sm rounded-2xl leading-relaxed text-sm ${
+                  isSelf
+                    ? "bg-primary text-white rounded-tr-none"
+                    : "bg-base-200 text-base-content rounded-tl-none border border-base-content/5"
+                }`}
+              >
+                {message.image && (
+                  <div className="relative rounded-lg overflow-hidden mb-2 border border-base-content/10 bg-base-300">
+                    <Image
+                      src={message.image}
+                      alt="Attachment"
+                      width={240}
+                      height={240}
+                      className="object-contain max-h-60 w-auto rounded-lg"
+                    />
+                  </div>
+                )}
+                {message.text && <p className="whitespace-pre-wrap break-words">{message.text}</p>}
+                
+                {/* Tiny absolute/aligned timestamp inside bubble */}
+                <span
+                  className={`text-[9px] mt-1.5 self-end font-light tracking-wide uppercase select-none ${
+                    isSelf ? "text-white/65" : "text-base-content/40"
+                  }`}
+                >
+                  {formatMessageTime(message.createdAt)}
+                </span>
               </div>
             </div>
-            <div className="chat-header mb-1">
-              <time className="text-xs opacity-50 ml-1">
-                {formatMessageTime(message.createdAt)}
-              </time>
-            </div>
-            <div className="chat-bubble flex flex-col">
-              {message.image && (
-                <Image
-                  src={message.image}
-                  alt="Attachment"
-                  width={200}
-                  height={200}
-                  className="sm:max-w-50 rounded-md mb-2"
-                />
-              )}
-              {message.text && <p>{message.text}</p>}
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <MessageInput />
@@ -112,3 +132,4 @@ const ChatContainer = () => {
   );
 };
 export default ChatContainer;
+

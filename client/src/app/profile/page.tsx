@@ -1,6 +1,8 @@
+"use client";
+
 import { useState } from "react";
 import { useAuthStore } from "@/store/useAuthStore";
-import { Camera, Mail, User } from "lucide-react";
+import { Camera, Mail, User, Shield, Calendar } from "lucide-react";
 import toast from "react-hot-toast";
 
 const ProfilePage = () => {
@@ -35,34 +37,44 @@ const ProfilePage = () => {
   };
 
   return (
-    <div className="h-screen pt-20">
-      <div className="max-w-2xl mx-auto p-4 py-8">
-        <div className="bg-base-300 rounded-xl p-6 space-y-8">
-          <div className="text-center">
-            <h1 className="text-2xl font-semibold ">Profile</h1>
-            <p className="mt-2">Your profile information</p>
+    <div className="min-h-screen pt-24 pb-12 bg-base-100 relative overflow-hidden transition-all duration-300">
+      {/* Ambient background glows */}
+      <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-96 h-96 bg-secondary/5 rounded-full blur-3xl pointer-events-none" />
+
+      <div className="max-w-2xl mx-auto p-4 z-10 relative">
+        <div className="glass-panel rounded-3xl p-6 sm:p-10 shadow-2xl space-y-8">
+          
+          {/* Header */}
+          <div className="text-center space-y-1.5">
+            <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+              My Profile
+            </h1>
+            <p className="text-sm text-base-content/65 font-light">Your personal account details</p>
           </div>
 
-          {/* avatar upload section */}
-
+          {/* Avatar Upload Section */}
           <div className="flex flex-col items-center gap-4">
-            <div className="relative">
-              <img
-                src={selectedImg || authUser?.profilePic || "/avatar.png"}
-                alt="Profile"
-                className="w-32 h-32 rounded-full object-cover border-4 "
-              />
+            <div className="relative group">
+              <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-base-100 shadow-md ring-2 ring-primary/20 transition-all duration-300 group-hover:ring-primary/40">
+                <img
+                  src={selectedImg || authUser?.profilePic || "/avatar.png"}
+                  alt="Profile"
+                  className="w-full h-full object-cover bg-base-200"
+                />
+              </div>
+              
               <label
                 htmlFor="avatar-upload"
                 className={`
                   absolute bottom-0 right-0 
-                  bg-base-content hover:scale-105
-                  p-2 rounded-full cursor-pointer 
+                  bg-primary text-white border border-base-100 shadow-lg hover:scale-110 active:scale-95
+                  p-2.5 rounded-full cursor-pointer 
                   transition-all duration-200
-                  ${isUpdatingProfile ? "animate-pulse pointer-events-none" : ""}
+                  ${isUpdatingProfile ? "animate-pulse pointer-events-none bg-base-300" : ""}
                 `}
               >
-                <Camera className="w-5 h-5 text-base-200" />
+                <Camera className="w-5 h-5" />
                 <input
                   type="file"
                   id="avatar-upload"
@@ -73,53 +85,72 @@ const ProfilePage = () => {
                 />
               </label>
             </div>
-            <p className="text-sm text-zinc-400">
+            
+            <p className="text-xs text-base-content/50 font-light">
               {isUpdatingProfile
-                ? "Uploading..."
-                : "Click the camera icon to update your photo"}
+                ? "Uploading your new avatar..."
+                : "Click the camera icon to select a new image"}
             </p>
           </div>
 
-          <div className="space-y-6">
+          {/* Form Fields */}
+          <div className="space-y-5">
             <div className="space-y-1.5">
-              <div className="text-sm text-zinc-400 flex items-center gap-2">
-                <User className="w-4 h-4" />
+              <div className="text-xs font-semibold uppercase tracking-wider text-base-content/60 flex items-center gap-2">
+                <User className="w-4 h-4 text-primary/70" />
                 Full Name
               </div>
-              <p className="px-4 py-2.5 bg-base-200 rounded-lg border">
+              <div className="px-4.5 py-3.5 bg-base-200/50 rounded-xl border border-base-content/5 text-sm font-medium text-base-content select-all">
                 {authUser?.fullName as string}
-              </p>
+              </div>
             </div>
 
             <div className="space-y-1.5">
-              <div className="text-sm text-zinc-400 flex items-center gap-2">
-                <Mail className="w-4 h-4" />
+              <div className="text-xs font-semibold uppercase tracking-wider text-base-content/60 flex items-center gap-2">
+                <Mail className="w-4 h-4 text-primary/70" />
                 Email Address
               </div>
-              <p className="px-4 py-2.5 bg-base-200 rounded-lg border">
+              <div className="px-4.5 py-3.5 bg-base-200/50 rounded-xl border border-base-content/5 text-sm font-medium text-base-content select-all">
                 {authUser?.email as string}
-              </p>
+              </div>
             </div>
           </div>
 
-          <div className="mt-6 bg-base-300 rounded-xl p-6">
-            <h2 className="text-lg font-medium  mb-4">Account Information</h2>
-            <div className="space-y-3 text-sm">
-              <div className="flex items-center justify-between py-2 border-b border-zinc-700">
-                <span>Member Since</span>
-                <span>
+          {/* Account Meta Info Card */}
+          <div className="mt-8 bg-base-200/40 rounded-2xl p-6 border border-base-content/5">
+            <h2 className="text-sm font-bold uppercase tracking-wider text-base-content/75 mb-4 flex items-center gap-2">
+              <Shield className="w-4 h-4 text-primary" />
+              Account Details
+            </h2>
+            
+            <div className="space-y-3.5 text-xs">
+              <div className="flex items-center justify-between py-2 border-b border-base-content/10">
+                <span className="text-base-content/60 flex items-center gap-1.5">
+                  <Calendar className="w-3.5 h-3.5" />
+                  Member Since
+                </span>
+                <span className="font-semibold text-base-content/85">
                   {(authUser?.createdAt as string | undefined)?.split("T")[0]}
                 </span>
               </div>
-              <div className="flex items-center justify-between py-2">
-                <span>Account Status</span>
-                <span className="text-green-500">Active</span>
+              
+              <div className="flex items-center justify-between py-2.5">
+                <span className="text-base-content/60 flex items-center gap-1.5">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                  </span>
+                  Account Status
+                </span>
+                <span className="text-green-500 font-semibold uppercase tracking-wider text-[10px]">Active</span>
               </div>
             </div>
           </div>
+
         </div>
       </div>
     </div>
   );
 };
 export default ProfilePage;
+

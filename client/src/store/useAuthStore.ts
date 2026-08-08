@@ -58,14 +58,20 @@ interface AuthStore {
 const NODE_ENV: string = process.env.NODE_ENV as string;
 
 const BASE_URL = (() => {
+  let url = "http://localhost:5001";
   if (NODE_ENV === "development") {
-    return process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
+    url = process.env.NEXT_PUBLIC_SOCKET_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
+  } else {
+    url = (
+      process.env.NEXT_PUBLIC_SOCKET_URL ||
+      process.env.NEXT_PUBLIC_API_URL ||
+      "https://chatty-backend-hap2.onrender.com"
+    );
   }
-  return (
-    process.env.NEXT_PUBLIC_SOCKET_URL ||
-    process.env.NEXT_PUBLIC_API_URL ||
-    "https://chatty-backend-hap2.onrender.com"
-  );
+  if (url.endsWith("/api")) {
+    url = url.slice(0, -4);
+  }
+  return url;
 })();
 
 export const useAuthStore = create<AuthStore>((set, get) => ({
@@ -84,25 +90,27 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       const res = await axiosInstance.get("/auth/check");
 
       console.log("[AUTH] Authentication check successful");
-      set({ authUser: res.data });
+      set({ authUser: res.data.user });
 
       // Store user info in localStorage for token persistence
-      if (res.data) {
-        localStorage.setItem("chat-user", JSON.stringify(res.data));
+      if (res.data.user) {
+        localStorage.setItem("chat-user", JSON.stringify(res.data.user));
       }
 
       get().connectSocket();
     } catch (error) {
       const err = error as ApiError;
 
-      console.error(
-        "[AUTH] Authentication check failed:",
-        err.response?.data?.message || err.message,
-      );
-
       if (err.response?.status === 401) {
-        console.log("[AUTH] User not authenticated - redirecting to login");
+        console.log(
+          "[AUTH] User not authenticated:",
+          err.response?.data?.message || err.message,
+        );
       } else {
+        console.error(
+          "[AUTH] Authentication check failed:",
+          err.response?.data?.message || err.message,
+        );
         console.error("[AUTH] Unexpected error during auth check:", err);
       }
 
@@ -127,7 +135,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         console.log("[AUTH] Token stored in localStorage");
       }
 
-      set({ authUser: res.data });
+      set({ authUser: res.data.user });
       toast.success("Account created successfully");
       get().connectSocket();
     } catch (error) {
@@ -171,7 +179,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         console.log("[AUTH] Token stored in localStorage");
       }
 
-      set({ authUser: res.data });
+      set({ authUser: res.data.user });
       toast.success("Logged in successfully");
       get().connectSocket();
     } catch (error) {
@@ -238,7 +246,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
           "Content-Type": "multipart/form-data",
         },
       });
-      set({ authUser: res.data });
+      set({ authUser: res.data.user });
       toast.success("Profile updated successfully");
     } catch (error) {
       const err = error as ApiError;

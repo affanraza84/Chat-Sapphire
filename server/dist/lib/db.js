@@ -6,7 +6,7 @@ export const connectDB = async () => {
             throw new Error("MongoDB connection URI (MONGO_URI) is not defined.");
         }
         const conn = await mongoose.connect(mongoUri);
-        console.log(`MongoDB Connected Successfully: ${conn.connection.host}`);
+        console.log(`MongoDB Connected Successfully`);
     }
     catch (error) {
         console.error(`Error: ${error.message}`);

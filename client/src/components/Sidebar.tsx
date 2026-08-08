@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import { useChatStore, ChatUser } from "../store/useChatStore";
 import { useAuthStore } from "../store/useAuthStore";
@@ -29,71 +31,98 @@ const Sidebar = () => {
   if (isUsersLoading) return <SidebarSkeleton />;
 
   return (
-    <aside className="h-full w-20 lg:w-72 border-r border-base-300 flex flex-col transition-all duration-200">
-      <div className="border-b border-base-300 w-full p-5">
-        <div className="flex items-center gap-2">
-          <Users className="size-6" />
-          <span className="font-medium hidden lg:block">Contacts</span>
+    <aside className="h-full w-20 lg:w-76 border-r border-base-content/10 bg-base-100/40 backdrop-blur-md flex flex-col transition-all duration-300">
+      {/* Sidebar Header */}
+      <div className="border-b border-base-content/10 w-full p-5 bg-base-100/50 backdrop-blur-sm">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-xl bg-primary/10 text-primary">
+            <Users className="size-5" />
+          </div>
+          <span className="font-semibold text-base hidden lg:block tracking-tight">Contacts</span>
         </div>
-        {/* TODO: Online filter toggle */}
-        <div className="mt-3 hidden lg:flex items-center gap-2">
-          <label className="cursor-pointer flex items-center gap-2">
+        
+        {/* Online Toggle filter */}
+        <div className="mt-4 hidden lg:flex items-center justify-between gap-2">
+          <label className="cursor-pointer flex items-center gap-2.5 group">
             <input
               type="checkbox"
               checked={showOnlineOnly}
               onChange={(e) => setShowOnlineOnly(e.target.checked)}
-              className="checkbox checkbox-sm"
+              className="toggle toggle-primary toggle-sm rounded-full transition-all"
             />
-            <span className="text-sm">Show online only</span>
+            <span className="text-sm font-medium text-base-content/70 group-hover:text-base-content transition-colors">Online Only</span>
           </label>
-          <span className="text-xs text-zinc-500">
-            ({onlineUsers.length - 1} online)
+          <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-base-content/10 text-base-content/65">
+            {Math.max(0, safeOnlineUsers.length - 1)} online
           </span>
         </div>
       </div>
 
-      <div className="overflow-y-auto w-full py-3">
-        {filteredUsers.map((user) => (
-          <button
-            key={user._id}
-            onClick={() => setSelectedUser(user)}
-            className={`
-              w-full p-3 flex items-center gap-3
-              hover:bg-base-300 transition-colors
-${selectedUser?._id === user._id ? "bg-base-300 ring-1 ring-base-300" : ""}
-            `}
-          >
-            <div className="relative mx-auto lg:mx-0">
-              <Image
-                src={user.profilePic || "/avatar.png"}
-                alt={user.fullName}
-                className="w-12 h-12 object-cover rounded-full"
-                width={48}
-                height={48}
-              />
-              {onlineUsers.includes(user._id) && (
-                <span
-                  className="absolute bottom-0 right-0 w-3 h-3 bg-green-500
-                  rounded-full ring-2 ring-zinc-900"
-                />
-              )}
-            </div>
+      {/* Users List Container */}
+      <div className="overflow-y-auto w-full py-3 flex-1 space-y-1.5 px-2">
+        {filteredUsers.map((user, index) => {
+          const isSelected = selectedUser?._id === user._id;
+          const isOnline = safeOnlineUsers.includes(user._id);
+          const delayClass = `animate-fade-in-${Math.min(index + 1, 5)}`;
 
-            {/* User info - only visible on larger screens */}
-            <div className="hidden lg:block text-left min-w-0">
-              <div className="font-medium truncate">{user.fullName}</div>
-              <div className="text-sm text-zinc-400">
-                {onlineUsers.includes(user._id) ? "Online" : "Offline"}
+          return (
+            <button
+              key={user._id}
+              onClick={() => setSelectedUser(user)}
+              className={`
+                w-full p-3 rounded-2xl flex items-center gap-3.5
+                transition-all duration-300 group relative ${delayClass}
+                ${isSelected 
+                  ? "bg-primary/10 text-primary shadow-sm ring-1 ring-primary/20" 
+                  : "hover:bg-base-content/5 text-base-content/85 hover:text-base-content"
+                }
+              `}
+            >
+              {/* Left active accent bar */}
+              <div 
+                className={`absolute left-0 top-1/4 bottom-1/4 w-1 rounded-r-full bg-primary transition-all duration-300 ${
+                  isSelected ? "opacity-100 scale-y-100" : "opacity-0 scale-y-50 group-hover:opacity-40"
+                }`}
+              />
+
+              {/* Avatar Section */}
+              <div className="relative mx-auto lg:mx-0 shrink-0">
+                <div className={`p-0.5 rounded-full border transition-colors duration-300 ${isSelected ? "border-primary" : "border-base-content/10"}`}>
+                  <Image
+                    src={user.profilePic || "/avatar.png"}
+                    alt={user.fullName}
+                    className="w-11 h-11 object-cover rounded-full bg-base-200"
+                    width={44}
+                    height={44}
+                  />
+                </div>
+                {isOnline && (
+                  <span
+                    className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500
+                    rounded-full ring-2 ring-base-100 animate-pulse"
+                  />
+                )}
               </div>
-            </div>
-          </button>
-        ))}
+
+              {/* User info - only visible on larger screens */}
+              <div className="hidden lg:block text-left min-w-0 flex-1">
+                <div className="font-semibold text-sm truncate">{user.fullName}</div>
+                <div className={`text-xs font-light mt-0.5 ${isSelected ? "text-primary/80" : "text-base-content/50"}`}>
+                  {isOnline ? "Active now" : "Offline"}
+                </div>
+              </div>
+            </button>
+          );
+        })}
 
         {filteredUsers.length === 0 && (
-          <div className="text-center text-zinc-500 py-4">No online users</div>
+          <div className="text-center text-base-content/50 py-8 flex flex-col items-center gap-2">
+            <span className="text-sm font-light">No users found</span>
+          </div>
         )}
       </div>
     </aside>
   );
 };
 export default Sidebar;
+

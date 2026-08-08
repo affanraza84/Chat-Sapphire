@@ -25,7 +25,8 @@ export const sendMessageSchema = z
         .refine((val) => val.length < 7_000_000, {
         message: "Image is too large (max ~5MB)",
     })
-        .optional(),
+        .optional()
+        .nullable(),
 })
     .refine((data) => data.text || data.image, {
     message: "Either text or image is required",
