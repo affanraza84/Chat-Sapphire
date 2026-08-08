@@ -42,6 +42,7 @@ app.use(
   }),
 );
 app.use(generalLimiter);
+app.set("trust proxy", 1);
 
 app.use("/api/auth", authRoutes);
 app.use("/api/message", messageRoutes);

@@ -27,7 +27,7 @@ export const setAuthCookies = (
   accessToken: string,
   refreshToken: string,
 ) => {
-  const isProd = process.env.NODE_ENV === "production";
+  const isProd = res.req.secure || res.req.headers["x-forwarded-proto"] === "https";
 
   res.cookie("accessToken", accessToken, {
     httpOnly: true,
