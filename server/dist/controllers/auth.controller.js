@@ -27,6 +27,8 @@ export const signup = async (req, res) => {
         setAuthCookies(res, accessToken, refreshToken);
         res.status(201).json({
             success: true,
+            token: accessToken,
+            refreshToken: refreshToken,
             user: {
                 _id: newUser._id,
                 fullName: newUser.fullName,
@@ -78,6 +80,8 @@ export const login = async (req, res) => {
         setAuthCookies(res, accessToken, refreshToken);
         res.status(200).json({
             success: true,
+            token: accessToken,
+            refreshToken: refreshToken,
             user: {
                 _id: user._id,
                 fullName: user.fullName,
@@ -93,7 +97,7 @@ export const login = async (req, res) => {
 };
 export const refresh = async (req, res) => {
     try {
-        const incomingToken = req.cookies?.refreshToken;
+        const incomingToken = req.cookies?.refreshToken || req.body?.refreshToken;
         if (!incomingToken) {
             res.status(401).json({
                 success: false,
@@ -116,7 +120,12 @@ export const refresh = async (req, res) => {
         const newAccessToken = generateAccessToken(storedToken.userId.toString());
         const newRefreshToken = await generateRefreshToken(storedToken.userId.toString());
         setAuthCookies(res, newAccessToken, newRefreshToken);
-        res.status(200).json({ success: true, message: "Token refreshed" });
+        res.status(200).json({
+            success: true,
+            token: newAccessToken,
+            refreshToken: newRefreshToken,
+            message: "Token refreshed",
+        });
     }
     catch (error) {
         console.error("Refresh error:", error);
@@ -125,7 +134,7 @@ export const refresh = async (req, res) => {
 };
 export const logout = async (req, res) => {
     try {
-        const incomingToken = req.cookies?.refreshToken;
+        const incomingToken = req.cookies?.refreshToken || req.body?.refreshToken;
         if (incomingToken) {
             await RefreshToken.deleteOne({ token: incomingToken });
         }

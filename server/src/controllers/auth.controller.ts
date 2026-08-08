@@ -43,6 +43,8 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
 
     res.status(201).json({
       success: true,
+      token: accessToken,
+      refreshToken: refreshToken,
       user: {
         _id: newUser._id,
         fullName: newUser.fullName,
@@ -103,6 +105,8 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
     res.status(200).json({
       success: true,
+      token: accessToken,
+      refreshToken: refreshToken,
       user: {
         _id: user._id,
         fullName: user.fullName,
@@ -118,7 +122,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
 export const refresh = async (req: Request, res: Response): Promise<void> => {
   try {
-    const incomingToken = req.cookies?.refreshToken;
+    const incomingToken = req.cookies?.refreshToken || req.body?.refreshToken;
 
     if (!incomingToken) {
       res.status(401).json({
@@ -149,7 +153,12 @@ export const refresh = async (req: Request, res: Response): Promise<void> => {
     );
     setAuthCookies(res, newAccessToken, newRefreshToken);
 
-    res.status(200).json({ success: true, message: "Token refreshed" });
+    res.status(200).json({
+      success: true,
+      token: newAccessToken,
+      refreshToken: newRefreshToken,
+      message: "Token refreshed",
+    });
   } catch (error) {
     console.error("Refresh error:", error);
     res.status(500).json({ success: false, message: "Internal server error" });
@@ -158,7 +167,7 @@ export const refresh = async (req: Request, res: Response): Promise<void> => {
 
 export const logout = async (req: Request, res: Response): Promise<void> => {
   try {
-    const incomingToken = req.cookies?.refreshToken;
+    const incomingToken = req.cookies?.refreshToken || req.body?.refreshToken;
     if (incomingToken) {
       await RefreshToken.deleteOne({ token: incomingToken });
     }

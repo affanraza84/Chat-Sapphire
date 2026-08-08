@@ -34,8 +34,18 @@ app.use(cors({
         }
     },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+    allowedHeaders: [
+        "Content-Type",
+        "Authorization",
+        "X-Requested-With",
+        "Accept",
+        "Origin",
+    ],
+    exposedHeaders: ["set-cookie"],
 }));
 app.use(generalLimiter);
+app.set("trust proxy", 1);
 app.use("/api/auth", authRoutes);
 app.use("/api/message", messageRoutes);
 app.use("/api/messages", messageRoutes);

@@ -80,7 +80,9 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 
       // Set empty array on error
       set({ users: [] });
-      toast.error(errorMessage);
+      if (err.response?.status !== 401) {
+        toast.error(errorMessage);
+      }
     } finally {
       set({ isUsersLoading: false });
     }
@@ -116,7 +118,9 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 
       // Clear messages on error
       set({ messages: [] });
-      toast.error(errorMessage);
+      if (err.response?.status !== 401) {
+        toast.error(errorMessage);
+      }
     } finally {
       set({ isMessagesLoading: false });
     }

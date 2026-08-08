@@ -18,23 +18,24 @@ export const generateRefreshToken = async (userId) => {
     return token;
 };
 export const setAuthCookies = (res, accessToken, refreshToken) => {
-    const isProd = process.env.NODE_ENV === "production";
+    const isProd = res.req.secure || res.req.headers["x-forwarded-proto"] === "https";
     res.cookie("accessToken", accessToken, {
         httpOnly: true,
         secure: isProd,
-        sameSite: "strict",
+        sameSite: isProd ? "none" : "lax",
+        path: "/",
         maxAge: 15 * 60 * 1000, // 15 min
     });
     res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
         secure: isProd,
-        sameSite: "strict",
+        sameSite: isProd ? "none" : "lax",
         maxAge: REFRESH_TOKEN_EXPIRY_DAYS * 24 * 60 * 60 * 1000,
         path: "/api/auth/refresh",
     });
 };
 export const clearAuthCookies = (res) => {
-    res.clearCookie("accessToken");
+    res.clearCookie("accessToken", { path: "/" });
     res.clearCookie("refreshToken", { path: "/api/auth/refresh" });
 };
 //# sourceMappingURL=token.utils.js.map

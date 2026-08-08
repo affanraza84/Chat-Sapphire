@@ -129,10 +129,14 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
       console.log("[AUTH] Signup successful");
 
-      // Store token if provided
+      // Store tokens if provided
       if (res.data.token) {
         localStorage.setItem("chat-token", res.data.token);
         console.log("[AUTH] Token stored in localStorage");
+      }
+      if (res.data.refreshToken) {
+        localStorage.setItem("chat-refresh-token", res.data.refreshToken);
+        console.log("[AUTH] Refresh token stored in localStorage");
       }
 
       set({ authUser: res.data.user });
@@ -173,10 +177,14 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
       console.log("[AUTH] Login successful");
 
-      // Store token if provided
+      // Store tokens if provided
       if (res.data.token) {
         localStorage.setItem("chat-token", res.data.token);
         console.log("[AUTH] Token stored in localStorage");
+      }
+      if (res.data.refreshToken) {
+        localStorage.setItem("chat-refresh-token", res.data.refreshToken);
+        console.log("[AUTH] Refresh token stored in localStorage");
       }
 
       set({ authUser: res.data.user });
@@ -210,12 +218,14 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     console.log("[AUTH] Starting logout process...");
 
     try {
-      await axiosInstance.post("/auth/logout");
+      const refreshToken = localStorage.getItem("chat-refresh-token");
+      await axiosInstance.post("/auth/logout", { refreshToken });
 
       console.log("[AUTH] Logout successful");
 
       // Clear stored token and user data
       localStorage.removeItem("chat-token");
+      localStorage.removeItem("chat-refresh-token");
       localStorage.removeItem("chat-user");
       console.log("[AUTH] Cleared stored token and user data");
 
