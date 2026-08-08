@@ -15,9 +15,13 @@ const Sidebar = () => {
   const { onlineUsers } = useAuthStore();
   const [showOnlineOnly, setShowOnlineOnly] = useState<boolean>(false);
 
+  const { authUser } = useAuthStore();
+
   useEffect(() => {
-    getUsers();
-  }, [getUsers]);
+    if (authUser) {
+      getUsers();
+    }
+  }, [getUsers, authUser]);
 
   // Ensure users and onlineUsers are arrays
   const safeUsers: ChatUser[] = Array.isArray(users) ? users : [];

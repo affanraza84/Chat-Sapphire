@@ -8,11 +8,7 @@ import HomePage from "./home/page";
 
 export default function Home() {
   const router = useRouter();
-  const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
-
-  useEffect(() => {
-    checkAuth();
-  }, [checkAuth]);
+  const { authUser, isCheckingAuth } = useAuthStore();
 
   useEffect(() => {
     if (!isCheckingAuth && !authUser) {
