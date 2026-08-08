@@ -32,20 +32,21 @@ export const setAuthCookies = (
   res.cookie("accessToken", accessToken, {
     httpOnly: true,
     secure: isProd,
-    sameSite: isProd? "none": "lax",
+    sameSite: isProd ? "none" : "lax",
+    path: "/",
     maxAge: 15 * 60 * 1000, // 15 min
   });
 
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
     secure: isProd,
-    sameSite: isProd? "none": "lax",
+    sameSite: isProd ? "none" : "lax",
     maxAge: REFRESH_TOKEN_EXPIRY_DAYS * 24 * 60 * 60 * 1000,
-    path: "/api/auth/refresh", 
+    path: "/api/auth/refresh",
   });
 };
 
 export const clearAuthCookies = (res: Response) => {
-  res.clearCookie("accessToken");
+  res.clearCookie("accessToken", { path: "/" });
   res.clearCookie("refreshToken", { path: "/api/auth/refresh" });
 };
