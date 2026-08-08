@@ -3,7 +3,7 @@ import "./globals.css";
 import Providers from "./providers";
 
 export const metadata: Metadata = {
-  title: "Chatty",
+  title: "Chat-Sapphire",
   description: "Real-time chat app",
 };
 
