@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useChatStore } from "../store/useChatStore";
+import { useChatStore} from "../store/useChatStore";
 import type { ChatUser } from "../store/useChatStore";
 import { useAuthStore } from "../store/useAuthStore";
 import SidebarSkeleton from "./skeletons/SidebarSekeleton";
@@ -15,13 +15,9 @@ const Sidebar = () => {
   const { onlineUsers } = useAuthStore();
   const [showOnlineOnly, setShowOnlineOnly] = useState<boolean>(false);
 
-  const { authUser } = useAuthStore();
-
   useEffect(() => {
-    if (authUser) {
-      getUsers();
-    }
-  }, [getUsers, authUser]);
+    getUsers();
+  }, [getUsers]);
 
   // Ensure users and onlineUsers are arrays
   const safeUsers: ChatUser[] = Array.isArray(users) ? users : [];
@@ -43,11 +39,9 @@ const Sidebar = () => {
           <div className="p-2 rounded-xl bg-primary/10 text-primary">
             <Users className="size-5" />
           </div>
-          <span className="font-semibold text-base hidden lg:block tracking-tight">
-            Contacts
-          </span>
+          <span className="font-semibold text-base hidden lg:block tracking-tight">Contacts</span>
         </div>
-
+        
         {/* Online Toggle filter */}
         <div className="mt-4 hidden lg:flex items-center justify-between gap-2">
           <label className="cursor-pointer flex items-center gap-2.5 group">
@@ -57,9 +51,7 @@ const Sidebar = () => {
               onChange={(e) => setShowOnlineOnly(e.target.checked)}
               className="toggle toggle-primary toggle-sm rounded-full transition-all"
             />
-            <span className="text-sm font-medium text-base-content/70 group-hover:text-base-content transition-colors">
-              Online Only
-            </span>
+            <span className="text-sm font-medium text-base-content/70 group-hover:text-base-content transition-colors">Online Only</span>
           </label>
           <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-base-content/10 text-base-content/65">
             {Math.max(0, safeOnlineUsers.length - 1)} online
@@ -81,27 +73,22 @@ const Sidebar = () => {
               className={`
                 w-full p-3 rounded-2xl flex items-center gap-3.5
                 transition-all duration-300 group relative ${delayClass}
-                ${
-                  isSelected
-                    ? "bg-primary/10 text-primary shadow-sm ring-1 ring-primary/20"
-                    : "hover:bg-base-content/5 text-base-content/85 hover:text-base-content"
+                ${isSelected 
+                  ? "bg-primary/10 text-primary shadow-sm ring-1 ring-primary/20" 
+                  : "hover:bg-base-content/5 text-base-content/85 hover:text-base-content"
                 }
               `}
             >
               {/* Left active accent bar */}
-              <div
+              <div 
                 className={`absolute left-0 top-1/4 bottom-1/4 w-1 rounded-r-full bg-primary transition-all duration-300 ${
-                  isSelected
-                    ? "opacity-100 scale-y-100"
-                    : "opacity-0 scale-y-50 group-hover:opacity-40"
+                  isSelected ? "opacity-100 scale-y-100" : "opacity-0 scale-y-50 group-hover:opacity-40"
                 }`}
               />
 
               {/* Avatar Section */}
               <div className="relative mx-auto lg:mx-0 shrink-0">
-                <div
-                  className={`p-0.5 rounded-full border transition-colors duration-300 ${isSelected ? "border-primary" : "border-base-content/10"}`}
-                >
+                <div className={`p-0.5 rounded-full border transition-colors duration-300 ${isSelected ? "border-primary" : "border-base-content/10"}`}>
                   <Image
                     src={user.profilePic || "/avatar.png"}
                     alt={user.fullName}
@@ -120,12 +107,8 @@ const Sidebar = () => {
 
               {/* User info - only visible on larger screens */}
               <div className="hidden lg:block text-left min-w-0 flex-1">
-                <div className="font-semibold text-sm truncate">
-                  {user.fullName}
-                </div>
-                <div
-                  className={`text-xs font-light mt-0.5 ${isSelected ? "text-primary/80" : "text-base-content/50"}`}
-                >
+                <div className="font-semibold text-sm truncate">{user.fullName}</div>
+                <div className={`text-xs font-light mt-0.5 ${isSelected ? "text-primary/80" : "text-base-content/50"}`}>
                   {isOnline ? "Active now" : "Offline"}
                 </div>
               </div>
@@ -143,3 +126,4 @@ const Sidebar = () => {
   );
 };
 export default Sidebar;
+
