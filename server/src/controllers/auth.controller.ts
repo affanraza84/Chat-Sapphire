@@ -207,23 +207,33 @@ export const updateProfile = async (req: Request, res: Response): Promise<void> 
       return;
     }
 
-    if (!req.file) {
-      res.status(400).json({ success: false, message: "No profile picture provided" });
+    const { fullName } = req.body;
+    let secureUrl;
+
+    if (req.file) {
+      const base64Image = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
+      
+      // Upload to Cloudinary
+      const uploadResponse = await cloudinary.uploader.upload(base64Image, {
+        folder: "profile-pics",
+        resource_type: "image",
+      });
+      secureUrl = uploadResponse.secure_url;
+    }
+
+    if (!req.file && !fullName) {
+      res.status(400).json({ success: false, message: "No data provided to update" });
       return;
     }
 
-    const base64Image = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
-    
-    // Upload to Cloudinary
-    const uploadResponse = await cloudinary.uploader.upload(base64Image, {
-      folder: "profile-pics",
-      resource_type: "image",
-    });
+    const updateData: any = {};
+    if (secureUrl) updateData.profilePic = secureUrl;
+    if (fullName) updateData.fullName = fullName;
 
-    // Update user profile picture in DB
+    // Update user profile in DB
     const updatedUser = await User.findByIdAndUpdate(
       req.user._id,
-      { profilePic: uploadResponse.secure_url },
+      updateData,
       { new: true }
     ).select("-password");
 

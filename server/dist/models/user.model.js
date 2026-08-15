@@ -12,6 +12,8 @@ const userSchema = new Schema({
     profilePic: { type: String, default: "" },
     failedLoginAttempts: { type: Number, default: 0 },
     lockUntil: { type: Date },
+    bio: { type: String, maxlength: 500, default: "" },
+    status: { type: String, maxlength: 500, default: "" },
 }, { timestamps: true });
 export default mongoose.model("User", userSchema);
 //# sourceMappingURL=user.model.js.map

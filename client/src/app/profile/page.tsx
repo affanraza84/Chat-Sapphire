@@ -2,12 +2,14 @@
 
 import { useState } from "react";
 import { useAuthStore } from "@/store/useAuthStore";
-import { Camera, Mail, User, Shield, Calendar } from "lucide-react";
+import { Camera, Mail, User, Shield, Calendar, Edit2, Check, X } from "lucide-react";
 import toast from "react-hot-toast";
 
 const ProfilePage = () => {
   const { authUser, isUpdatingProfile, updateProfile } = useAuthStore();
   const [selectedImg, setSelectedImg] = useState<string | null>(null);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editedName, setEditedName] = useState("");
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -34,6 +36,19 @@ const ProfilePage = () => {
 
     // Upload the actual file
     await updateProfile({ profilePic: file });
+  };
+
+  const handleNameSave = async () => {
+    if (!editedName.trim()) {
+      toast.error("Name cannot be empty");
+      return;
+    }
+    if (editedName === authUser?.fullName) {
+      setIsEditingName(false);
+      return;
+    }
+    await updateProfile({ fullName: editedName });
+    setIsEditingName(false);
   };
 
   return (
@@ -96,13 +111,52 @@ const ProfilePage = () => {
           {/* Form Fields */}
           <div className="space-y-5">
             <div className="space-y-1.5">
-              <div className="text-xs font-semibold uppercase tracking-wider text-base-content/60 flex items-center gap-2">
-                <User className="w-4 h-4 text-primary/70" />
-                Full Name
+              <div className="text-xs font-semibold uppercase tracking-wider text-base-content/60 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <User className="w-4 h-4 text-primary/70" />
+                  Full Name
+                </div>
+                {!isEditingName ? (
+                  <button 
+                    onClick={() => { setIsEditingName(true); setEditedName(authUser?.fullName as string); }} 
+                    className="text-primary hover:text-primary/80 transition-colors cursor-pointer"
+                  >
+                    <Edit2 className="w-4 h-4" />
+                  </button>
+                ) : (
+                  <div className="flex items-center gap-3">
+                    <button 
+                      onClick={handleNameSave} 
+                      className="text-success hover:text-success/80 transition-colors cursor-pointer" 
+                      disabled={isUpdatingProfile}
+                    >
+                      <Check className="w-4 h-4" />
+                    </button>
+                    <button 
+                      onClick={() => setIsEditingName(false)} 
+                      className="text-error hover:text-error/80 transition-colors cursor-pointer" 
+                      disabled={isUpdatingProfile}
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
               </div>
-              <div className="px-4.5 py-3.5 bg-base-200/50 rounded-xl border border-base-content/5 text-sm font-medium text-base-content select-all">
-                {authUser?.fullName as string}
-              </div>
+              
+              {!isEditingName ? (
+                <div className="px-4 py-3.5 bg-base-200/50 rounded-xl border border-base-content/5 text-sm font-medium text-base-content select-all">
+                  {authUser?.fullName as string}
+                </div>
+              ) : (
+                <input
+                  type="text"
+                  value={editedName}
+                  onChange={(e) => setEditedName(e.target.value)}
+                  className="w-full px-4 py-3 bg-base-200/50 rounded-xl border border-primary/50 text-sm font-medium text-base-content focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  disabled={isUpdatingProfile}
+                  autoFocus
+                />
+              )}
             </div>
 
             <div className="space-y-1.5">
@@ -110,7 +164,7 @@ const ProfilePage = () => {
                 <Mail className="w-4 h-4 text-primary/70" />
                 Email Address
               </div>
-              <div className="px-4.5 py-3.5 bg-base-200/50 rounded-xl border border-base-content/5 text-sm font-medium text-base-content select-all">
+              <div className="px-4 py-3.5 bg-base-200/50 rounded-xl border border-base-content/5 text-sm font-medium text-base-content select-all">
                 {authUser?.email as string}
               </div>
             </div>

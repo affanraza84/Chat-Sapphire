@@ -27,6 +27,7 @@ interface LoginData {
 
 interface UpdateProfileData {
   profilePic?: File | string;
+  fullName?: string;
   [key: string]: unknown;
 }
 
@@ -249,6 +250,10 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       // If data contains a file, append it as a file
       if (data.profilePic instanceof File) {
         formData.append("profilePic", data.profilePic);
+      }
+      
+      if (data.fullName) {
+        formData.append("fullName", data.fullName as string);
       }
 
       const res = await axiosInstance.put("/auth/update-profile", formData, {
