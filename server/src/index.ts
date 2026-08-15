@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import helmet from "helmet";
 
+import userRoutes from "./routes/user.route.js";
 import authRoutes from "./routes/auth.route.js";
 import messageRoutes from "./routes/message.route.js";
 import { connectDB } from "./lib/db.js";
@@ -54,6 +55,7 @@ app.use(generalLimiter);
 app.set("trust proxy", 1);
 
 app.use("/api/auth", authRoutes);
+app.use("/api/user", userRoutes);
 app.use("/api/message", messageRoutes);
 app.use("/api/messages", messageRoutes);
 

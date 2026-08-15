@@ -3,11 +3,13 @@
 import { X } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
 import { useChatStore } from "../store/useChatStore";
+import { useProfileModalStore } from "../store/useProfileModalStore";
 import Image from "next/image";
 
 const ChatHeader = () => {
   const { selectedUser, setSelectedUser } = useChatStore();
   const { onlineUsers } = useAuthStore();
+  const { openModal } = useProfileModalStore();
 
   if (!selectedUser) {
     return null;
@@ -21,7 +23,15 @@ const ChatHeader = () => {
         <div className="flex items-center gap-3">
           {/* Avatar with status outline */}
           <div className="relative">
-            <div className={`p-[2px] rounded-full border transition-colors duration-300 ${isOnline ? "border-green-500" : "border-base-content/10"}`}>
+            <div 
+              className={`p-[2px] rounded-full border transition-colors duration-300 ${isOnline ? "border-green-500" : "border-base-content/10"} ${selectedUser.profilePic ? "cursor-pointer hover:border-primary/50" : ""}`}
+              onClick={(e) => {
+                if (selectedUser.profilePic) {
+                  e.stopPropagation();
+                  openModal(selectedUser._id);
+                }
+              }}
+            >
               <Image
                 src={selectedUser.profilePic || "/avatar.png"}
                 alt={selectedUser.fullName}

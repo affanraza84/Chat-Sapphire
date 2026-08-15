@@ -1,11 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useAuthStore } from "../store/useAuthStore";
 import { LogOut, MessageSquare, Settings, User } from "lucide-react";
 
 const Navbar = () => {
   const { logout, authUser } = useAuthStore();
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
   return (
     <header
@@ -49,7 +51,7 @@ const Navbar = () => {
                 </Link>
 
                 <button
-                  onClick={logout}
+                  onClick={() => setIsLogoutModalOpen(true)}
                   className="btn btn-ghost btn-sm gap-2 rounded-xl text-error/85 hover:text-error hover:bg-error/10 transition-all duration-300"
                 >
                   <LogOut className="w-4 h-4" />
@@ -60,6 +62,54 @@ const Navbar = () => {
           </div>
         </div>
       </div>
+
+      {/* Logout Confirmation Modal */}
+      {isLogoutModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          {/* Backdrop overlay */}
+          <div 
+            className="absolute inset-0 bg-base-300/40 animate-modal-backdrop"
+            onClick={() => setIsLogoutModalOpen(false)}
+          />
+          
+          {/* Modal Card */}
+          <div className="relative bg-base-200 border border-base-content/10 rounded-2xl shadow-2xl p-6 max-w-sm w-full flex flex-col items-center text-center gap-4 animate-modal-content">
+            {/* Glowing warning icon */}
+            <div className="size-16 rounded-full bg-error/15 flex items-center justify-center border border-error/25 shadow-inner">
+              <LogOut className="w-8 h-8 text-error animate-pulse" />
+            </div>
+            
+            {/* Cool words */}
+            <div className="space-y-1">
+              <h3 className="text-xl font-black text-base-content tracking-tight">
+                Leaving the grid? ⚡
+              </h3>
+              <p className="text-sm text-base-content/70 px-2 leading-relaxed">
+                Are you sure you want to pull the plug? The chat will miss your presence.
+              </p>
+            </div>
+            
+            {/* Action buttons */}
+            <div className="flex gap-3 w-full mt-2">
+              <button
+                onClick={() => setIsLogoutModalOpen(false)}
+                className="flex-1 btn btn-ghost border border-base-content/15 rounded-xl hover:bg-base-content/10 active:scale-95 transition-all duration-200 font-semibold text-sm cursor-pointer"
+              >
+                Abort
+              </button>
+              <button
+                onClick={() => {
+                  setIsLogoutModalOpen(false);
+                  logout();
+                }}
+                className="flex-1 btn btn-error text-error-content rounded-xl shadow-lg shadow-error/20 hover:shadow-error/35 hover:scale-[1.02] active:scale-95 transition-all duration-200 font-semibold text-sm cursor-pointer"
+              >
+                Peace Out ✌️
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 };

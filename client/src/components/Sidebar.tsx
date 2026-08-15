@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useChatStore} from "../store/useChatStore";
 import type { ChatUser } from "../store/useChatStore";
 import { useAuthStore } from "../store/useAuthStore";
+import { useProfileModalStore } from "../store/useProfileModalStore";
 import SidebarSkeleton from "./skeletons/SidebarSekeleton";
 import { Users } from "lucide-react";
 import Image from "next/image";
@@ -13,6 +14,7 @@ const Sidebar = () => {
     useChatStore();
 
   const { onlineUsers } = useAuthStore();
+  const { openModal } = useProfileModalStore();
   const [showOnlineOnly, setShowOnlineOnly] = useState<boolean>(false);
 
   useEffect(() => {
@@ -88,7 +90,15 @@ const Sidebar = () => {
 
               {/* Avatar Section */}
               <div className="relative mx-auto lg:mx-0 shrink-0">
-                <div className={`p-0.5 rounded-full border transition-colors duration-300 ${isSelected ? "border-primary" : "border-base-content/10"}`}>
+                <div 
+                  className={`p-0.5 rounded-full border transition-colors duration-300 ${isSelected ? "border-primary" : "border-base-content/10"} ${user.profilePic ? "cursor-pointer hover:border-primary/50" : ""}`}
+                  onClick={(e) => {
+                    if (user.profilePic) {
+                      e.stopPropagation();
+                      openModal(user._id);
+                    }
+                  }}
+                >
                   <Image
                     src={user.profilePic || "/avatar.png"}
                     alt={user.fullName}

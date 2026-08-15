@@ -25,6 +25,8 @@ const userSchema = new Schema<IUser>(
     profilePic: { type: String, default: "" },
     failedLoginAttempts: { type: Number, default: 0 },
     lockUntil: { type: Date },
+    bio: { type: String, maxlength: 500, default: "" },
+    status: { type: String, maxlength: 500, default: "" },
   },
   { timestamps: true },
 );
