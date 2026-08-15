@@ -7,6 +7,8 @@ export interface IUser extends Document {
   profilePic: string;
   failedLoginAttempts: number;
   lockUntil?: Date | undefined;
+  bio?: string;
+  status?: string;
   createdAt: Date;
   updatedAt: Date;
 }
